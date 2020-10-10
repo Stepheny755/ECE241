@@ -22,7 +22,7 @@ module mux2to1(x, y, s, m);
     input y; //select 1
     input s; //select signal
     output m; //output
-  
+
     //assign m = s & y | ~s & x;
     // OR
     assign m = s ? y : x;

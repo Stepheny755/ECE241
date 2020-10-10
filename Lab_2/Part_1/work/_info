@@ -1,0 +1,55 @@
+m255
+K4
+z2
+!s11f vlog 2020.1 2020.02, Feb 28 2020
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dD:/Repos/ECE241/Lab_2/Part_1
+vmux
+Z1 !s110 1602359431
+!i10b 1
+!s100 Da^6a=2^RjDLA=_kk[jz90
+Z2 !s11b Dg1SIo80bB@j0V0VzS_@n1
+IZZD?JRJORQKK5689Elz922
+Z3 VDg1SIo80bB@j0V0VzS_@n1
+R0
+Z4 w1602358226
+Z5 8mux.v
+Z6 Fmux.v
+!i122 2
+L0 8 11
+Z7 OV;L;2020.1;71
+r1
+!s85 0
+31
+Z8 !s108 1602359431.000000
+!s107 mux.v|
+Z9 !s90 -reportprogress|300|mux.v|
+!i113 1
+Z10 tCvgOpt 0
+vmux2to1
+R1
+!i10b 1
+!s100 IJ<g^:<:fSTE>MPCeb3KF2
+R2
+IP??8z>[fJPoPfPJ3L<`Vz2
+R3
+R0
+R4
+R5
+R6
+!i122 2
+L0 20 11
+R7
+r1
+!s85 0
+31
+R8
+Z11 !s107 mux.v|
+R9
+!i113 1
+R10

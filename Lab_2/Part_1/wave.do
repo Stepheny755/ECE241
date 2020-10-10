@@ -28,3 +28,9 @@ force {SW[1]} 1
 force {SW[9]} 0
 run 10ns
 
+#third test case, change input values and run for another 10ns
+# SW[0] should control LED[0]
+force {SW[0]} 1
+force {SW[1]} 1
+force {SW[9]} 0
+run 10ns
