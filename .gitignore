@@ -1,0 +1,10 @@
+*.qsf
+*.qpf
+*.qdb
+*.qpg
+*.qtl
+_vmake
+db
+incremental_db
+output_files
+work
