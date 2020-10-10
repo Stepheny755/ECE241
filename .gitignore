@@ -3,8 +3,14 @@
 *.qdb
 *.qpg
 *.qtl
+*.wlf
+*.bak
+*.vpi
+
 _vmake
+
 db
 incremental_db
 output_files
 work
+Libraries
