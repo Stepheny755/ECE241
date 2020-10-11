@@ -5,7 +5,6 @@
 *.qtl
 *.wlf
 *.bak
-*.vpi
 
 _vmake
 
