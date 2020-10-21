@@ -21,24 +21,18 @@ module main	(
 
 	hexdecoder hd(
 		.c(SW[3:0]),
-		.hex(HEX0),
-		.led(LEDR[3:0])
+		.hex(HEX0)
 	);
 endmodule
 
-module hexdecoder(input[3:0] c,output[6:0] hex,output[3:0] led);
-		seg0 s0(c[3],c[2],c[1],c[0],hex[0]);
-		seg1 s1(c[3],c[2],c[1],c[0],hex[1]);
-  	seg2 s2(c[3],c[2],c[1],c[0],hex[2]);
-  	seg3 s3(c[3],c[2],c[1],c[0],hex[3]);
-  	seg4 s4(c[3],c[2],c[1],c[0],hex[4]);
-  	seg5 s5(c[3],c[2],c[1],c[0],hex[5]);
-  	seg6 s6(c[3],c[2],c[1],c[0],hex[6]);
-
-	assign led[0] = c[0];
-	assign led[1] = c[1];
-	assign led[2] = c[2];
-	assign led[3] = c[3];
+module hexdecoder(input[3:0] c,output[6:0] hex);
+	seg0 s0(c[3],c[2],c[1],c[0],hex[0]);
+	seg1 s1(c[3],c[2],c[1],c[0],hex[1]);
+	seg2 s2(c[3],c[2],c[1],c[0],hex[2]);
+	seg3 s3(c[3],c[2],c[1],c[0],hex[3]);
+	seg4 s4(c[3],c[2],c[1],c[0],hex[4]);
+	seg5 s5(c[3],c[2],c[1],c[0],hex[5]);
+	seg6 s6(c[3],c[2],c[1],c[0],hex[6]);
 endmodule
 
 module seg0(input c0,c1,c2,c3,output s);
