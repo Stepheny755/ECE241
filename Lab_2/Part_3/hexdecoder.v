@@ -1,6 +1,5 @@
 `timescale 1ns / 1ns
 
-
 module hexdecoder(input[3:0] SW,output[6:0] HEX0);
 	seg0 s0(SW[3],SW[2],SW[1],SW[0],HEX0[0]);
 	seg1 s1(SW[3],SW[2],SW[1],SW[0],HEX0[1]);
