@@ -18,16 +18,56 @@ module main	(
 	output wire vga_resetn          // VGA resets to black when this is pulsed (NOT CURRENTLY AVAILABLE)
 );
 
-	part2 p2(
+	part3 p3(
 			.SW(SW[9:0]),
-			.LEDR(LEDR[9:0])
+			.KEY(KEY[2:0]),
+			.LEDR(LEDR[9:0]),
+			.HEX0(HEX0[6:0]),
+			.HEX1(HEX1[6:0]),
+			.HEX2(HEX2[6:0]),
+			.HEX3(HEX3[6:0]),
+			.HEX4(HEX4[6:0]),
+			.HEX5(HEX5[6:0])
 			);
 endmodule
 
-module part2(SW,LEDR);
+module part3 (SW, KEY, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
 	input[9:0] SW;
+	input[2:0] KEY;
 	output[9:0] LEDR;
-  RCA_4bit rca(SW[7:4],SW[3:0],SW[8],LEDR[3:0],LEDR[9]);
+	output[6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
+
+	wire[7:0] aluout;
+	wire[3:0] aluout1,aluout2;
+  ALU alu(SW[7:4],SW[3:0],~KEY[2:0],aluout);
+
+	assign LEDR = aluout;
+
+	hexdecoder h0(SW[3:0],HEX0);
+	hexdecoder h1(3'b0,HEX1);
+	hexdecoder h2(SW[7:4],HEX2);
+	hexdecoder h3(3'b0,HEX3);
+	hexdecoder h4(aluout[7:4],HEX5);
+	hexdecoder h5(aluout[3:0],HEX4);
+endmodule
+
+module ALU(input[3:0] A,B,input[2:0] f,output reg[7:0] aluout);
+	wire[3:0] add;
+	wire cout;
+	RCA_4bit rca(A,B,1'b0,add,cout);
+
+	always@(*)
+	begin
+		case(f)
+			3'b000: aluout = {3'b0,cout,add};
+			3'b001: aluout = A+B;
+			3'b010: aluout = {4'b0,B};
+			3'b011: aluout = A||B;
+			3'b100: aluout = &({A,B});
+			3'b101: aluout = {A,B};
+			default: aluout = 7'b0;
+		endcase
+	end
 endmodule
 
 module RCA_4bit(input[3:0] a,b,input cin,output[3:0] s,output cout);
@@ -43,14 +83,14 @@ module FA(input a,b,cin,output s,cout);
 	assign cout = (a&b)|(cin&a)|(cin&b);
 endmodule
 
-module hexdecoder(input[3:0] SW,output[6:0] HEX0);
-	seg0 s0(SW[3],SW[2],SW[1],SW[0],HEX0[0]);
-	seg1 s1(SW[3],SW[2],SW[1],SW[0],HEX0[1]);
-	seg2 s2(SW[3],SW[2],SW[1],SW[0],HEX0[2]);
-	seg3 s3(SW[3],SW[2],SW[1],SW[0],HEX0[3]);
-	seg4 s4(SW[3],SW[2],SW[1],SW[0],HEX0[4]);
-	seg5 s5(SW[3],SW[2],SW[1],SW[0],HEX0[5]);
-	seg6 s6(SW[3],SW[2],SW[1],SW[0],HEX0[6]);
+module hexdecoder(input[3:0] in,output[6:0] out);
+	seg0 s0(in[3],in[2],in[1],in[0],out[0]);
+	seg1 s1(in[3],in[2],in[1],in[0],out[1]);
+	seg2 s2(in[3],in[2],in[1],in[0],out[2]);
+	seg3 s3(in[3],in[2],in[1],in[0],out[3]);
+	seg4 s4(in[3],in[2],in[1],in[0],out[4]);
+	seg5 s5(in[3],in[2],in[1],in[0],out[5]);
+	seg6 s6(in[3],in[2],in[1],in[0],out[6]);
 endmodule
 
 module seg0(input c0,c1,c2,c3,output s);
