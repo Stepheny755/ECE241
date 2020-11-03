@@ -61,8 +61,8 @@ module ALU(input[3:0] A,B,input[2:0] f,output reg[7:0] aluout);
 		case(f)
 			3'b000: aluout = {3'b0,cout,add};
 			3'b001: aluout = A+B;
-			3'b010: aluout = {4'b0,B};
-			3'b011: aluout = A||B;
+			3'b010: aluout = {4' b0,B}; //look up sign extension
+			3'b011: aluout = A||B; //|({A,B});
 			3'b100: aluout = &({A,B});
 			3'b101: aluout = {A,B};
 			default: aluout = 7'b0;

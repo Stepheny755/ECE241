@@ -18,27 +18,38 @@ module main	(
 	output wire vga_resetn          // VGA resets to black when this is pulsed (NOT CURRENTLY AVAILABLE)
 );
 
-	part1 p2(
+	part2 p2(
 			.SW(SW[9:0]),
-			.LEDR(LEDR[9:0])
+			.KEY(KEY[3:0]),
+			.LEDR(LEDR[9:0]),
+			.HEX0(HEX0[6:0]),
+			.HEX1(HEX1[6:0]),
+			.HEX2(HEX2[6:0]),
+			.HEX3(HEX3[6:0]),
+			.HEX4(HEX4[6:0]),
+			.HEX5(HEX5[6:0])
 			);
 endmodule
 
-module part2(SW,LEDR);
+module part2(SW, KEY, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
 	input[9:0] SW;
+	input[3:0] KEY;
 	output[9:0] LEDR;
-  RCA_4bit rca(SW[7:4],SW[3:0],SW[8],LEDR[3:0],LEDR[9]);
-endmodule
+	output[6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
 
-module RCA_4bit(input[3:0] a,b,input cin,output[3:0] s,output cout);
-	wire c1,c2,c3;
-	FA fa1(a[0],b[0],cin,s[0],c1);
-	FA fa2(a[1],b[1],c1,s[1],c2);
-	FA fa3(a[2],b[2],c2,s[2],c3);
-	FA fa4(a[3],b[3],c3,s[3],cout);
-endmodule
+	wire[7:0] register,aluout;
 
-module FA(input a,b,cin,output s,cout);
-	assign s = a^b^cin;
-	assign cout = (a&b)|(cin&a)|(cin&b);
+  ALU alu1(SW[3:0],register[3:0],KEY[3:1],aluout);
+	REG reg1(aluout,KEY[0],SW[9],register);
+
+	assign LEDR = register;
+
+	hexdecoder h0(SW[3:0],HEX0);
+	hexdecoder h1(4'b0,HEX1);
+	hexdecoder h2(4'b0,HEX2);
+	hexdecoder h3(4'b0,HEX3);
+	hexdecoder h4(register[3:0],HEX4);
+	hexdecoder h5(register[7:4],HEX5);
+	//assign HEX4 = register[3:0];
+	//assign HEX5 = register[7:4];
 endmodule
