@@ -9,21 +9,7 @@ module part3(SW,KEY,LEDR,CLOCK_50);
   reg enable;
   reg[28:0] RateDivider;
   reg[28:0] def = (50E6)-1;
-  /*
-  always@(*)
-    begin
-      if(SW[1:0]==1'd0)
-        def = 1'd0;
-      else if(SW[1:0]==1'd1)
-        def = 50E6-1;
-      else if(SW[1:0]==1'd2)
-        def = 100E6-1;
-      else if(SW[1:0]==1'd3)
-        def = 200E6-1;
-      else
-        def = 1'd0;
-    end
-    */
+
   always@(posedge CLOCK_50)
     begin
       RateDivider<=RateDivider-1;
@@ -37,8 +23,7 @@ module part3(SW,KEY,LEDR,CLOCK_50);
         end
     end
 
-  counter_8bit c1(CLOCK_50,SW[9],enable,Q);
+  morse_encoder me(,.out(LEDR[0]));
 
-	hexdecoder hex0(Q,HEX0);
 
 endmodule

@@ -1,5 +1,5 @@
 vlib work
-vlog main.v mux.v d_ff.v
+vlog main.v mux.v d_ff.v -timescale "1ns/1ns"
 vsim rotating_reg
 
 log /*
