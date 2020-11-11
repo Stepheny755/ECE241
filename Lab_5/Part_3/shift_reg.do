@@ -7,6 +7,7 @@ add wave /*
 
 force {clk} 0
 force {reset} 1
+force {enable} 1
 run 1ns
 
 force {reset} 0

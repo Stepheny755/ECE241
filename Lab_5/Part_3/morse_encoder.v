@@ -1,12 +1,12 @@
-module morse_encoder(input clk,reset,input[2:0] sel,output out);
+module morse_encoder(input clk,reset,enable,input[2:0] sel,output out);
 
   wire[15:0] morse_string,Q;
 
   morse_lut codes(.s(sel),.q(morse_string));
 
-  shift_reg_16bit s_reg(.w(0),.clk(clk),.reset(reset),.d(morse_string),.q(Q));
+  shift_reg_16bit s_reg(.w(1'b0),.clk(clk),.reset(reset),.loadn(!enable),.enable(enable),.d(morse_string),.q(Q));
 
-  assign out = Q[15];
+  assign out = Q[15]&enable;
 
 endmodule
 
