@@ -39,3 +39,8 @@ force {parallelLoadn} 1
 force {RotateRight} 1
 force {ASRight} 1
 run 10ns
+
+force {parallelLoadn} 1
+force {RotateRight} 0
+force {ASRight} 1
+run 10ns

@@ -13,7 +13,7 @@ module ALU(input[3:0] A,B,input[2:0] f,output reg[7:0] aluout);
 			3'b100: aluout = &({A,B});
 			3'b101: aluout = A<<B;
       3'b110: aluout = A*B;
-			3'b111: aluout = aluout;
+			3'b111: aluout = B;
 			default: aluout = 7'b0;
 		endcase
 	end

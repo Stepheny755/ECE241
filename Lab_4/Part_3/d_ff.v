@@ -4,4 +4,4 @@ module flipflop(input d, clk, reset, output reg q);
       q <= 0;
     else
       q <= d;
-endmodule
+endmodule v
