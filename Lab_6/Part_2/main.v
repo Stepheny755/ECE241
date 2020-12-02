@@ -30,14 +30,14 @@ module part2(SW, KEY, CLOCK_50, LEDR, HEX0, HEX1);
 
     assign LEDR[7:0] = data_result;
 
-    hex_decoder H0(
-        .hex_digit(data_result[3:0]),
-        .segments(HEX0)
+    hexdecoder H0(
+        .inp(data_result[3:0]),
+        .HEX(HEX0)
         );
 
-    hex_decoder H1(
-        .hex_digit(data_result[7:4]),
-        .segments(HEX1)
+    hexdecoder H1(
+        .inp(data_result[7:4]),
+        .HEX(HEX1)
         );
 
 endmodule
@@ -119,7 +119,9 @@ module control(
                 S_LOAD_X_WAIT   = 5'd7,
                 S_CYCLE_0       = 5'd8,
                 S_CYCLE_1       = 5'd9,
-                S_CYCLE_2       = 5'd10;
+                S_CYCLE_2       = 5'd10,
+                S_CYCLE_3       = 5'd11,
+                S_CYCLE_4       = 5'd12;
 
     // Next state logic aka our state table
     always@(*)
@@ -134,7 +136,10 @@ module control(
                 S_LOAD_X: next_state = go ? S_LOAD_X_WAIT : S_LOAD_X; // Loop in current state until value is input
                 S_LOAD_X_WAIT: next_state = go ? S_LOAD_X_WAIT : S_CYCLE_0; // Loop in current state until go signal goes low
                 S_CYCLE_0: next_state = S_CYCLE_1;
-                S_CYCLE_1: next_state = S_LOAD_A; // we will be done our two operations, start over after
+                S_CYCLE_1: next_state = S_CYCLE_2;
+                S_CYCLE_2: next_state = S_CYCLE_3;
+                S_CYCLE_3: next_state = S_CYCLE_4;
+                S_CYCLE_4: next_state = S_LOAD_A; // we will be done our two operations, start over after
             default:     next_state = S_LOAD_A;
         endcase
     end // state_table
@@ -167,17 +172,41 @@ module control(
             S_LOAD_X: begin
                 ld_x = 1'b1;
                 end
-            S_CYCLE_0: begin // Do A <- A * A
-                ld_alu_out = 1'b1; ld_a = 1'b1; // store result back into A
-                alu_select_a = 2'b00; // Select register A
-                alu_select_b = 2'b00; // Also select register A
-                alu_op = 1'b1; // Do multiply operation
+            S_CYCLE_0: begin // A <= A*x
+                ld_alu_out = 1'b1; ld_a = 1'b1; // store result in reg a
+                alu_select_a = 2'd0; // Select reg a
+                alu_select_b = 2'd3; // Select reg x
+                alu_op = 1'b1; // multiply
             end
-            S_CYCLE_1: begin
-                ld_r = 1'b1; // store result in result register
-                alu_select_a = 2'b00; // Select register A
-                alu_select_b = 2'b10; // Select register C
-                alu_op = 1'b0; // Do Add operation
+            S_CYCLE_1: begin // A <= A*x^2 = A*x
+                ld_alu_out = 1'b1; ld_a = 1'b1; // store result in reg a
+                alu_select_a = 2'd0; // Select reg a
+                alu_select_b = 2'd3; // Select reg x
+                alu_op = 1'b1; // multiply
+            end
+            //done Ax^2
+
+            S_CYCLE_2: begin // B <= B*x
+                ld_alu_out = 1'b1; ld_b = 1'b1; // store result in reg b
+                alu_select_a = 2'd1; // Select reg b
+                alu_select_b = 2'd3; // Select reg x
+                alu_op = 1'b1; // multiply
+            end
+            //done Bx
+
+            S_CYCLE_3: begin // B <= B*x + C
+                ld_alu_out = 1'b1; ld_b = 1'b1; // store result in reg b
+                alu_select_a = 2'd1; // Select reg b
+                alu_select_b = 2'd2; // Select reg c
+                alu_op = 1'b0; // add
+            end
+            //done Bx+C
+
+            S_CYCLE_4: begin // r <= Ax^2+Bx+C = A+B
+                ld_r = 1'b1; // store result in result reg
+                alu_select_a = 2'd0; // Select reg a
+                alu_select_b = 2'd1; // Select reg x
+                alu_op = 1'b0; // add
             end
         // default:    // don't need default since we already made sure all of our outputs were assigned a value at the start of the always block
         endcase
@@ -290,28 +319,40 @@ module datapath(
 endmodule
 
 
-module hex_decoder(hex_digit, segments);
-    input [3:0] hex_digit;
-    output reg [6:0] segments;
+module hexdecoder(input[3:0] inp,output[6:0] HEX);
+	seg0 s0(inp[3],inp[2],inp[1],inp[0],HEX[0]);
+	seg1 s1(inp[3],inp[2],inp[1],inp[0],HEX[1]);
+	seg2 s2(inp[3],inp[2],inp[1],inp[0],HEX[2]);
+	seg3 s3(inp[3],inp[2],inp[1],inp[0],HEX[3]);
+	seg4 s4(inp[3],inp[2],inp[1],inp[0],HEX[4]);
+	seg5 s5(inp[3],inp[2],inp[1],inp[0],HEX[5]);
+	seg6 s6(inp[3],inp[2],inp[1],inp[0],HEX[6]);
+endmodule
 
-    always @(*)
-        case (hex_digit)
-            4'h0: segments = 7'b100_0000;
-            4'h1: segments = 7'b111_1001;
-            4'h2: segments = 7'b010_0100;
-            4'h3: segments = 7'b011_0000;
-            4'h4: segments = 7'b001_1001;
-            4'h5: segments = 7'b001_0010;
-            4'h6: segments = 7'b000_0010;
-            4'h7: segments = 7'b111_1000;
-            4'h8: segments = 7'b000_0000;
-            4'h9: segments = 7'b001_1000;
-            4'hA: segments = 7'b000_1000;
-            4'hB: segments = 7'b000_0011;
-            4'hC: segments = 7'b100_0110;
-            4'hD: segments = 7'b010_0001;
-            4'hE: segments = 7'b000_0110;
-            4'hF: segments = 7'b000_1110;
-            default: segments = 7'h7f;
-        endcase
+module seg0(input c0,c1,c2,c3,output s);
+  assign s = ~(~c1&~c3|c3&~c0&c1|c2&~c0|c1&c2|c0&~c3|c0&~c1&~c2);
+endmodule
+
+module seg1(input c0,c1,c2,c3,output s);
+  assign s = ~(~c0&~c1|~c1&~c3|~c0&c2&c3|~c0&~c2&~c3|c0&~c2&c3);
+endmodule
+
+module seg2(input c0,c1,c2,c3,output s);
+  assign s = ~(~c0&~c2|~c0&c3|~c2&c3|~c0&c1|c0&~c1);
+endmodule
+
+module seg3(input c0,c1,c2,c3,output s);
+  assign s = ~(~c0&~c1&~c3|~c0&~c1&c2|c1&~c2&c3|c1&c2&~c3|c0&~c2|c0&~c1&c3);
+endmodule
+
+module seg4(input c0,c1,c2,c3,output s);
+  assign s = ~((c1|c2|~c3)&(c0|~c3)&(c0|~c1|c2));
+endmodule
+
+module seg5(input c0,c1,c2,c3,output s);
+  assign s = ~(~c2&~c3|~c0&c1&~c2|c0&~c1|c0&c2|c1&c2&~c3);
+endmodule
+
+module seg6(input c0,c1,c2,c3,output s);
+  assign s = ~(~c0&c1&~c2|~c0&~c1&c2|c2&~c3|c0&~c1|c0&c3|c0&c2);
 endmodule

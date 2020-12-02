@@ -1,5 +1,5 @@
 vlib work
-vlog main.v -timescale "1ns/1ns"
+vlog part2_template.v -timescale "1ns/1ns"
 vsim part2
 
 log /*
