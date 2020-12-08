@@ -39,6 +39,7 @@ module main
 	wire [6:0] y;
 	wire writeEn;
 
+
 	// Create an Instance of a VGA controller - there can be only one!
 	// Define the number of colours as well as the initial background
 	// image file (.MIF) for the controller.
@@ -66,13 +67,17 @@ module main
 	// Put your code here. Your code should produce signals x,y,colour and writeEn
 	// for the VGA controller, in addition to any other functionality your design may require.
   wrapper w(
-    .clk(CLOCK_50)
-    .colour(SW[9:7]),
-    .go(go),//this needs to be updated
-    .data(SW[6:0]),
-    .plot(writeEn),
+    .clk(CLOCK_50),
+		.resetn(resetn),
+		.go(!KEY[3]),//key to take data inputs
+		.plot_in(!KEY[1]),
+		.black(!KEY[2]),
+		.data(SW[6:0]),
+    .colour_in(SW[9:7]),
     .xloc(x),
-    .yloc(y)
+    .yloc(y),
+		.colour_out(colour),
+		.plot_out(writeEn)
     );
 
 endmodule
@@ -81,56 +86,59 @@ module wrapper(
     input clk,
     input resetn,
     input go,
-    input plot,
+    input plot_in,
 		input black,
     input [6:0] data,
     input [2:0] colour_in,
-    output reg[7:0] xloc,
-    output reg[6:0] yloc,
-    output reg[2:0] colour_out
-    );
+    output[7:0] xloc,
+    output[6:0] yloc,
+    output[2:0] colour_out,
+		output plot_out);
 
     // lots of wires to connect our datapath and control
-    wire ld_rxin, ld_ryin, ld_rxout, ld_ryout, selxy;
-		wire xinc, yinc, rxinc, ryinc;
+    wire ld_rxin, ld_ryin, ld_rxout, ld_ryout, ld_col, selxy;
+		wire inc, rinc;
+		wire draw_complete;
 
     control C0(
         .clk(clk),
         .resetn(resetn),
         .go(go),
+				.draw_complete(draw_complete),
 
         .ld_rxin(ld_rxin),
         .ld_ryin(ld_ryin),
         .ld_rxout(ld_rxout),
         .ld_ryout(ld_ryout),
+				.ld_col(ld_col),
         .selxy(selxy),
-        .xinc(xinc),
-        .yinc(yinc),
-				.reset_xinc(rxinc),
-				.reset_yinc(ryinc),
+        .inc(inc),
+				.reset_inc(rinc),
 
-        .black(black)
-        .plot(plot)
+        .black(black),
+        .plot_in(plot_in),
+				.plot_out(plot_out)
     );
 
     datapath D0(
         .clk(clk),
         .resetn(resetn),
 
-        .data(data)
+        .data(data),
+				.colour_in(colour_in),
 
 				.ld_rxin(ld_rxin),
         .ld_ryin(ld_ryin),
         .ld_rxout(ld_rxout),
         .ld_ryout(ld_ryout),
+				.ld_col(ld_col),
         .selxy(selxy),
-        .xinc(xinc),
-        .yinc(yinc),
-				.reset_xinc(rxinc),
-				.reset_yinc(ryinc),
+        .inc(inc),
+				.reset_inc(rinc),
 
         .colour_out(colour_out),
         .rxout(xloc),
-        .ryout(yloc)
+        .ryout(yloc),
+				.draw_complete(draw_complete)
     );
  endmodule

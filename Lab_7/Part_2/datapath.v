@@ -4,16 +4,19 @@ module datapath(
     input[2:0] colour_in,
     input[6:0] data,
     input ld_rxin, ld_ryin, ld_rxout, ld_ryout, ld_col, selxy,
-    input xinc, yinc, reset_xinc, reset_yinc
+    input inc, reset_inc,
     output reg[2:0] colour_out,
     output reg[7:0] rxout,
-    output reg[6:0] ryout);
+    output reg[6:0] ryout,
+    output reg draw_complete
+    );
 
     // input registers
     reg[6:0] rxin,ryin;
 
     // alu input/outputs
-    reg [2:0] rxinc,ryinc;
+    reg [4:0] rinc;
+    reg [1:0] rxinc,ryinc;
     reg [6:0] alu_a,alu_b;
     reg [6:0] alu_out;
 
@@ -31,7 +34,7 @@ module datapath(
         end
     end
 
-    // output registers
+    // output (x,y) registers
     always@(posedge clk) begin
         if(!resetn) begin
             rxout <= 8'b0;
@@ -45,6 +48,7 @@ module datapath(
         end
     end
 
+    //colour registers
     always@(posedge clk) begin
       if(!resetn) begin
         colour_out <= 3'b0;
@@ -55,27 +59,26 @@ module datapath(
       end
     end
 
+    //increment registers
     always@(posedge clk) begin
       if(!resetn) begin
-        rxinc = 3'b0;
-        ryinc = 3'b0;
+        draw_complete <= 1'b0;
+        rinc <= 5'b0;
       end
       else begin
-        if(reset_xinc)begin
-          rxinc <= 3'b0;
+        if(reset_inc)begin
+          rinc <= 5'b0;
+          draw_complete <= 1'b0;
         end
         else begin
-          if(xinc)
-            rxinc <= rxinc+1;
+          if(inc)
+            rinc <= rinc+1;
         end
-
-        if(reset_yinc)begin
-          ryinc <= 3'b0;
-        end
-        else begin
-          if(yinc)
-            ryinc <= ryinc+1;
-        end
+      end
+      {ryinc,rxinc} <= rinc;
+      if(rinc[4]==1'b1)begin
+        rinc <= 5'b0;
+        draw_complete <= 1'b1;
       end
     end
 
@@ -91,9 +94,10 @@ module datapath(
               alu_a = ryin;
               alu_b = {5'b0,ryinc};
             end
-            default:
+            default: begin
               alu_a = 7'b0;
               alu_b = 7'b0;
+            end
         endcase
     end
 

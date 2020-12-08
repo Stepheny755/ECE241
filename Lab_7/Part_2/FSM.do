@@ -15,7 +15,6 @@ run 1 ns
 force {resetn} 1
 run 1 ns
 
-force {data}
 force {go} 1
 run 2 ns
 

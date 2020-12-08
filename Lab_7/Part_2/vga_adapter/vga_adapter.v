@@ -10,7 +10,7 @@
  * 320x240 or 160x120 superpixels. The concept of superpixels is introduced to reduce the amount of on-chip
  * memory used by the adapter. The following table shows the number of bits of on-chip memory used by
  * the adapter in various resolutions and colour depths.
- * 
+ *
  * -------------------------------------------------------------------------------------------------------------------------------
  * Resolution | Mono    | 8 colours | 64 colours | 512 colours | 4096 colours | 32768 colours | 262144 colours | 2097152 colours |
  * -------------------------------------------------------------------------------------------------------------------------------
@@ -27,7 +27,7 @@
  *                          (R,G,B). A default value of 1 indicates that 1 bit will be used for red
  *                          channel, 1 for green channel and 1 for blue channel. This allows 8 colours
  *                          to be used.
- * 
+ *
  * In addition to the above parameters, a BACKGROUND_IMAGE parameter can be specified. The parameter
  * refers to a memory initilization file (MIF) which contains the initial contents of video memory.
  * By specifying the initial contents of the memory we can force the adapter to initially display an
@@ -89,26 +89,26 @@ module vga_adapter(
 			VGA_BLANK,
 			VGA_SYNC,
 			VGA_CLK);
- 
+
 	parameter BITS_PER_COLOUR_CHANNEL = 1;
 	/* The number of bits per colour channel used to represent the colour of each pixel. A value
 	 * of 1 means that Red, Green and Blue colour channels will use 1 bit each to represent the intensity
 	 * of the respective colour channel. For BITS_PER_COLOUR_CHANNEL=1, the adapter can display 8 colours.
 	 * In general, the adapter is able to use 2^(3*BITS_PER_COLOUR_CHANNEL ) colours. The number of colours is
 	 * limited by the screen resolution and the amount of on-chip memory available on the target device.
-	 */	
-	
+	 */
+
 	parameter MONOCHROME = "FALSE";
 	/* Set this parameter to "TRUE" if you only wish to use black and white colours. Doing so will reduce
 	 * the amount of memory you will use by a factor of 3. */
-	
+
 	parameter RESOLUTION = "320x240";
 	/* Set this parameter to "160x120" or "320x240". It will cause the VGA adapter to draw each dot on
 	 * the screen by using a block of 4x4 pixels ("160x120" resolution) or 2x2 pixels ("320x240" resolution).
 	 * It effectively reduces the screen resolution to an integer fraction of 640x480. It was necessary
 	 * to reduce the resolution for the Video Memory to fit within the on-chip memory limits.
 	 */
-	
+
 	parameter BACKGROUND_IMAGE = "background.mif";
 	/* The initial screen displayed when the circuit is first programmed onto the DE2 board can be
 	 * defined useing an MIF file. The file contains the initial colour for each pixel on the screen
@@ -121,23 +121,23 @@ module vga_adapter(
 	/*****************************************************************************/
 	input resetn;
 	input clock;
-	
+
 	/* The colour input can be either 1 bit or 3*BITS_PER_COLOUR_CHANNEL bits wide, depending on
 	 * the setting of the MONOCHROME parameter.
 	 */
 	input [((MONOCHROME == "TRUE") ? (0) : (BITS_PER_COLOUR_CHANNEL*3-1)):0] colour;
-	
+
 	/* Specify the number of bits required to represent an (X,Y) coordinate on the screen for
 	 * a given resolution.
 	 */
-	input [((RESOLUTION == "320x240") ? (8) : (7)):0] x; 
+	input [((RESOLUTION == "320x240") ? (8) : (7)):0] x;
 	input [((RESOLUTION == "320x240") ? (7) : (6)):0] y;
-	
+
 	/* When plot is high then at the next positive edge of the clock the pixel at (x,y) will change to
 	 * a new colour, defined by the value of the colour input.
 	 */
 	input plot;
-	
+
 	/* These outputs drive the VGA display. The VGA_CLK is also used to clock the FSM responsible for
 	 * controlling the data transferred to the DAC driving the monitor. */
 	output [7:0] VGA_R;
@@ -152,42 +152,42 @@ module vga_adapter(
 	/*****************************************************************************/
 	/* Declare local signals here.                                               */
 	/*****************************************************************************/
-	
+
 	wire valid_160x120;
 	wire valid_320x240;
 	/* Set to 1 if the specified coordinates are in a valid range for a given resolution.*/
-	
+
 	wire writeEn;
 	/* This is a local signal that allows the Video Memory contents to be changed.
-	 * It depends on the screen resolution, the values of X and Y inputs, as well as 
+	 * It depends on the screen resolution, the values of X and Y inputs, as well as
 	 * the state of the plot signal.
 	 */
-	
+
 	wire [((MONOCHROME == "TRUE") ? (0) : (BITS_PER_COLOUR_CHANNEL*3-1)):0] to_ctrl_colour;
 	/* Pixel colour read by the VGA controller */
-	
+
 	wire [((RESOLUTION == "320x240") ? (16) : (14)):0] user_to_video_memory_addr;
 	/* This bus specifies the address in memory the user must write
 	 * data to in order for the pixel intended to appear at location (X,Y) to be displayed
 	 * at the correct location on the screen.
 	 */
-	
+
 	wire [((RESOLUTION == "320x240") ? (16) : (14)):0] controller_to_video_memory_addr;
 	/* This bus specifies the address in memory the vga controller must read data from
 	 * in order to determine the colour of a pixel located at coordinate (X,Y) of the screen.
 	 */
-	
+
 	wire clock_25;
 	/* 25MHz clock generated by dividing the input clock frequency by 2. */
-	
+
 	wire vcc, gnd;
-	
+
 	/*****************************************************************************/
 	/* Instances of modules for the VGA adapter.                                 */
-	/*****************************************************************************/	
+	/*****************************************************************************/
 	assign vcc = 1'b1;
 	assign gnd = 1'b0;
-	
+
 	vga_address_translator user_input_translator(
 					.x(x), .y(y), .mem_address(user_to_video_memory_addr) );
 		defparam user_input_translator.RESOLUTION = RESOLUTION;
@@ -197,7 +197,7 @@ module vga_adapter(
 	assign valid_320x240 = (({1'b0, x} >= 0) & ({1'b0, x} < 320) & ({1'b0, y} >= 0) & ({1'b0, y} < 240)) & (RESOLUTION == "320x240");
 	assign writeEn = (plot) & (valid_160x120 | valid_320x240);
 	/* Allow the user to plot a pixel if and only if the (X,Y) coordinates supplied are in a valid range. */
-	
+
 	/* Create video memory. */
 	altsyncram	VideoMemory (
 				.wren_a (writeEn),
@@ -205,7 +205,7 @@ module vga_adapter(
 				.clock0 (clock), // write clock
 				.clock1 (clock_25), // read clock
 				.clocken0 (vcc), // write enable clock
-				.clocken1 (vcc), // read enable clock				
+				.clocken1 (vcc), // read enable clock
 				.address_a (user_to_video_memory_addr),
 				.address_b (controller_to_video_memory_addr),
 				.data_a (colour), // data in
@@ -227,7 +227,7 @@ module vga_adapter(
 		VideoMemory.CLOCK_ENABLE_OUTPUT_B = "BYPASS",
 		VideoMemory.POWER_UP_UNINITIALIZED = "FALSE",
 		VideoMemory.INIT_FILE = BACKGROUND_IMAGE;
-		
+
 	vga_pll mypll(clock, clock_25);
 	/* This module generates a clock with half the frequency of the input clock.
 	 * For the VGA adapter to operate correctly the clock signal 'clock' must be
@@ -239,18 +239,18 @@ module vga_adapter(
 	wire [9:0] r;
 	wire [9:0] g;
 	wire [9:0] b;
-	
+
 	/* Assign the MSBs from the controller to the VGA signals */
-	
+
 	assign VGA_R = r[9:2];
 	assign VGA_G = g[9:2];
 	assign VGA_B = b[9:2];
-	
+
 	vga_controller controller(
 			.vga_clock(clock_25),
 			.resetn(resetn),
 			.pixel_colour(to_ctrl_colour),
-			.memory_address(controller_to_video_memory_addr), 
+			.memory_address(controller_to_video_memory_addr),
 			.VGA_R(r),
 			.VGA_G(g),
 			.VGA_B(b),
@@ -258,11 +258,10 @@ module vga_adapter(
 			.VGA_VS(VGA_VS),
 			.VGA_BLANK(VGA_BLANK),
 			.VGA_SYNC(VGA_SYNC),
-			.VGA_CLK(VGA_CLK)				
+			.VGA_CLK(VGA_CLK)
 		);
 		defparam controller.BITS_PER_COLOUR_CHANNEL  = BITS_PER_COLOUR_CHANNEL ;
 		defparam controller.MONOCHROME = MONOCHROME;
 		defparam controller.RESOLUTION = RESOLUTION;
 
 endmodule
-	
