@@ -4,9 +4,9 @@ module datapath(
     input[6:0] xpos,
     input[6:0] ypos,
     input[3:0] colour,
-    input ld_rxin, ld_ryin, ld_rxout, ld_ryout
+    input ld_rxin, ld_ryin, ld_rxout, ld_ryout,
     input selxy,
-    input[1:0] inc,
+    input[2:0] inc,
     output reg[7:0] rxout,
     output reg[6:0] ryout);
 
@@ -25,7 +25,7 @@ module datapath(
         end
         else begin
             if(ld_rxin)
-                rxin <= xpos
+                rxin <= xpos;
             if(ld_ryin)
                 ryin <= ypos;
         end
@@ -36,11 +36,11 @@ module datapath(
         if(!resetn) begin
             rxout <= 8'b0;
             ryout <= 7'b0;
+        end
         if(ld_rxout)
-            rxout <= alu_out;
+            rxout <= {1'b0,alu_out};
         if(ld_ryout)
             ryout <= alu_out;
-        end
     end
 
     // ALU inputs
@@ -59,7 +59,7 @@ module datapath(
 
     // ALU/adder
     always @(*)
-    begin : ALU
+    begin
         // alu
         alu_out = alu_a + alu_b;
     end
