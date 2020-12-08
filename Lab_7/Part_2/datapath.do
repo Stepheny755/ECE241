@@ -20,12 +20,22 @@ force {clk} 0
 
 run 1 ns
 
-force {xpos} 7'd100
-force {ypos} 7'd56
+force {ld_col} 1
+force {colour_in} 3'b001
+
+force {data} 7'd100
 force {ld_rxin} 1
-force {ld_ryin} 1
 force {inc} 3'b100
 
+run 1 ns
+
+force {clk} 1
+run 1 ns
+
+force {ld_rxin} 0
+force {clk} 0
+force {data} 7'd56
+force {ld_ryin} 1
 run 1 ns
 
 force {clk} 1

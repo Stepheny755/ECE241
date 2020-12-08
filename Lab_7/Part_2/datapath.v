@@ -1,11 +1,11 @@
 module datapath(
     input clk,
     input resetn,
-    input[6:0] xpos,
-    input[6:0] ypos,
-    input ld_rxin, ld_ryin, ld_rxout, ld_ryout,
-    input selxy,
-    input[2:0] inc,
+    input[2:0] colour_in,
+    input[6:0] data,
+    input ld_rxin, ld_ryin, ld_rxout, ld_ryout, ld_col, selxy,
+    input[2:0] xinc,yinc,
+    output reg[2:0] colour_out,
     output reg[7:0] rxout,
     output reg[6:0] ryout);
 
@@ -24,9 +24,9 @@ module datapath(
         end
         else begin
             if(ld_rxin)
-                rxin <= xpos;
+                rxin <= data;
             if(ld_ryin)
-                ryin <= ypos;
+                ryin <= data;
         end
     end
 
@@ -44,18 +44,32 @@ module datapath(
         end
     end
 
+    always@(posedge clk) begin
+      if(!resetn) begin
+        colour_out <= 3'b0;
+      end
+      else begin
+        if(ld_col)
+          colour_out <= colour_in;
+      end
+    end
+
     // ALU inputs
     always @(*)
     begin
         case (selxy)
-            0:
+            0: begin
               alu_a = rxin;
-            1:
+              alu_b = {5'b0,xinc};
+            end
+            1: begin
               alu_a = ryin;
+              alu_b = {5'b0,yinc};
+            end
             default:
               alu_a = 7'b0;
+              alu_b = 7'b0;
         endcase
-        alu_b = {5'b0,inc};
     end
 
     // ALU/adder

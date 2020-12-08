@@ -3,7 +3,7 @@
 module main
 	(
 		CLOCK_50,						//	On Board 50 MHz
-		// Your inputs and outputs here
+    SW,
 		KEY,							// On Board Keys
 		// The ports below are for the VGA output.  Do not change.
 		VGA_CLK,   						//	VGA Clock
@@ -18,8 +18,8 @@ module main
 
 	input			CLOCK_50;				//	50 MHz
 	input	[3:0]	KEY;
-	// Declare your inputs and outputs here
-	// Do not change the following outputs
+  input [9:0] SW;
+
 	output			VGA_CLK;   				//	VGA Clock
 	output			VGA_HS;					//	VGA H_SYNC
 	output			VGA_VS;					//	VGA V_SYNC
@@ -65,6 +65,67 @@ module main
 
 	// Put your code here. Your code should produce signals x,y,colour and writeEn
 	// for the VGA controller, in addition to any other functionality your design may require.
-
+  wrapper w(
+    .clk(CLOCK_50)
+    .colour(SW[9:7]),
+    .go(go),//this needs to be updated
+    .data(SW[6:0]),
+    .plot(writeEn),
+    .xloc(x),
+    .yloc(y)
+    );
 
 endmodule
+
+module wrapper(
+    input clk,
+    input resetn,
+    input go,
+    input plot,
+    input [6:0] data,
+    input [2:0] colour_in,
+    output reg[7:0] xloc,
+    output reg[6:0] yloc,
+    output reg[2:0] colour_out
+    );
+
+    // lots of wires to connect our datapath and control
+    wire ld_rxin, ld_ryin, ld_rxout, ld_ryout, selxy;
+    wire[2:0] inc;
+
+    control C0(
+        .clk(clk),
+        .resetn(resetn),
+        .go(go),
+
+        .ld_rxin(ld_rxin),
+        .ld_ryin(ld_ryin),
+        .ld_rxout(ld_rxout),
+        .ld_ryout(ld_ryout),
+        .selxy(selxy),
+        .xinc(xinc),
+        .yinc(yinc),
+
+        .black()
+        .plot()
+    );
+
+    datapath D0(
+        .clk(clk),
+        .resetn(resetn),
+
+        .data(data)
+
+        .ld_rxin(ld_rxin),
+        .ld_ryin(ld_ryin),
+        .ld_rxout(ld_rxout),
+        .ld_ryout(ld_ryout),
+        .selxy(selxy),
+        .xinc(xinc),
+        .yinc(yinc),
+
+        .colour_out(colour_out),
+        .rxout(xloc),
+        .ryout(yloc)
+    );
+ endmodule
