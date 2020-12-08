@@ -40,4 +40,12 @@ force {clk} 0
 run 1 ns
 
 force {clk} 1
+force {ld_rxout} 0
+run 1 ns
+
+force {clk} 0
+force {resetn} 0
+run 1 ns
+
+force {clk} 1
 run 1 ns

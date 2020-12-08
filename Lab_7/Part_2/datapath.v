@@ -3,7 +3,6 @@ module datapath(
     input resetn,
     input[6:0] xpos,
     input[6:0] ypos,
-    input[3:0] colour,
     input ld_rxin, ld_ryin, ld_rxout, ld_ryout,
     input selxy,
     input[2:0] inc,
@@ -37,10 +36,12 @@ module datapath(
             rxout <= 8'b0;
             ryout <= 7'b0;
         end
-        if(ld_rxout)
-            rxout <= {1'b0,alu_out};
-        if(ld_ryout)
-            ryout <= alu_out;
+        else begin
+          if(ld_rxout)
+              rxout <= {1'b0,alu_out};
+          if(ld_ryout)
+              ryout <= alu_out;
+        end
     end
 
     // ALU inputs
