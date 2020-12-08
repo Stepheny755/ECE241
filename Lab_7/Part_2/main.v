@@ -82,6 +82,7 @@ module wrapper(
     input resetn,
     input go,
     input plot,
+		input black,
     input [6:0] data,
     input [2:0] colour_in,
     output reg[7:0] xloc,
@@ -92,7 +93,6 @@ module wrapper(
     // lots of wires to connect our datapath and control
     wire ld_rxin, ld_ryin, ld_rxout, ld_ryout, selxy;
 		wire xinc, yinc, rxinc, ryinc;
-    wire[2:0] inc;
 
     control C0(
         .clk(clk),
@@ -109,8 +109,8 @@ module wrapper(
 				.reset_xinc(rxinc),
 				.reset_yinc(ryinc),
 
-        .black()
-        .plot()
+        .black(black)
+        .plot(plot)
     );
 
     datapath D0(
@@ -119,12 +119,12 @@ module wrapper(
 
         .data(data)
 
-        .ld_rxin(ld_rxin),
+				.ld_rxin(ld_rxin),
         .ld_ryin(ld_ryin),
         .ld_rxout(ld_rxout),
         .ld_ryout(ld_ryout),
         .selxy(selxy),
-				.xinc(xinc),
+        .xinc(xinc),
         .yinc(yinc),
 				.reset_xinc(rxinc),
 				.reset_yinc(ryinc),

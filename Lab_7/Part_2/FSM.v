@@ -2,22 +2,10 @@ module control(
     input clk,
     input resetn,
     input go,
-
-    output reg  ld_a, ld_b, ld_c, ld_x, ld_r,
-    output reg  ld_alu_out,
-    output reg [1:0]  alu_select_a, alu_select_b,
-    output reg alu_op
-
-
-    input clk,
-    input resetn,
-    input go,
     input black, plot_in,
 
     output reg ld_rxin, ld_ryin, ld_rxout, ld_ryout, ld_col, selxy,
     output reg xinc,yinc,reset_xinc,reset_yinc,
-    output reg[7:0] rxout,
-    output reg[6:0] ryout,
     output reg plot_out
     );
 
@@ -44,9 +32,9 @@ module control(
                 S_LOAD_Y: next_state = go ? S_LOAD_Y_WAIT : S_LOAD_Y;
                 S_LOAD_Y_WAIT: next_state = go ? S_LOAD_Y_WAIT : S_LOAD_COL;
                 S_LOAD_COL: next_state = go ? S_LOAD_COL_WAIT : S_LOAD_COL;
-                S_LOAD_COL_WAIT: next_state = go ? S_LOAD_COL_WAIT : S_CYCLE_X
+                S_LOAD_COL_WAIT: next_state = go ? S_LOAD_COL_WAIT : S_CYCLE_X;
                 S_CYCLE_X: next_state = S_CYCLE_INCX;
-                S_CYCLE_INCX : next_state = S_CYCLE Y;
+                S_CYCLE_INCX : next_state = S_CYCLE_Y;
                 S_CYCLE_Y: next_state = S_CYCLE_INCY;
                 S_CYCLE_INCY: next_state = S_CYCLE_DONE;
                 S_CYCLE_DONE: next_state = S_LOAD_X;
@@ -83,20 +71,20 @@ module control(
                 end
             S_CYCLE_X: begin
                 selxy = 1'b0;
-                ld_rxout 1'b1;
+                ld_rxout = 1'b1;
             end
             S_CYCLE_INCX: begin
 
             end
             S_CYCLE_Y: begin
                 selxy = 1'b1;
-                ld_rxout 1'b1;
+                ld_rxout = 1'b1;
             end
-            S_CYCLE_YINC: begin // B <= B*x + C
+            S_CYCLE_INCY: begin // B <= B*x + C
 
             end
             S_CYCLE_DONE: begin
-
+                plot_out =
             end
         endcase
     end // enable_signals

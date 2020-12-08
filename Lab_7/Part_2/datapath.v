@@ -4,8 +4,7 @@ module datapath(
     input[2:0] colour_in,
     input[6:0] data,
     input ld_rxin, ld_ryin, ld_rxout, ld_ryout, ld_col, selxy,
-    input xinc,yinc,
-    input reset_xinc,reset_yinc
+    input xinc, yinc, reset_xinc, reset_yinc
     output reg[2:0] colour_out,
     output reg[7:0] rxout,
     output reg[6:0] ryout);
