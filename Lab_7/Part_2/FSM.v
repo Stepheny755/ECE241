@@ -98,9 +98,6 @@ module control(
     always@(posedge clk) begin: clear
       if(black) begin
 
-
-
-
       end
     end
 
